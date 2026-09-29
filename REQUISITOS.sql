@@ -83,3 +83,26 @@ order by pit.quantidade desc,p.preco DESC, p.nome
 )
 
 select * from VW_PRODUTOS_MAIS_VENDIDOS;
+
+
+--funçao para calcular o total do pedido
+
+select fn_calcula_total_pedido(1);
+
+
+create or replace function fn_calcula_total_pedido(p_pedido_id INT)
+returns DECIMAL as $$
+declare
+	v_total DECIMAL := 0;
+begin
+
+	SELECT SUM(i.quantidade * i.preco_unit)
+	INTO v_total
+	FROM pedido_itens i
+	WHERE i.pedido_id = p_pedido_id;
+
+	RETURN coalesce(v_total,0);
+	
+end;
+
+$$ language plpgsql;
