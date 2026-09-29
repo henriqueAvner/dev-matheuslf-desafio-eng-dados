@@ -34,3 +34,52 @@ group by cliente
 )
 
 select * from VW_TOTAL_POR_CLIENTE;
+
+
+--view para resumo de pedidos
+
+create or replace view VW_PEDIDOS_RESUMO as (
+select Count(p.*) as qtde_pedidos,
+	   sum(preco_unit) as preco_total,
+	   sum(t.quantidade) as qtde_produtos
+from pedidos p
+inner join pedido_itens t 
+on t.pedido_id  = p.id 
+inner join produtos pr 
+on pr.id = t.produto_id
+)
+
+select * from VW_PEDIDOS_RESUMO;
+
+
+--view para vendas por cidade
+
+create or replace view VW_VENDAS_POR_CIDADE as (
+select c.cidade,
+       SUM(pi.quantidade) as total_produtos
+from clientes c
+inner join pedidos p 
+on c.id = p.cliente_id
+inner join pedido_itens pi 
+on p.id = pi.pedido_id
+group by c.cidade
+order by total_produtos desc
+)
+
+select * from VW_VENDAS_POR_CIDADE;
+
+--view para produtos mais vendidos
+
+create or replace view VW_PRODUTOS_MAIS_VENDIDOS as (
+select p.nome as nome_produto, 
+		p.preco, 
+		SUM(pit.preco_unit * pit.quantidade) as total_vendido,
+		pit.quantidade as quantidade_produto
+from produtos p
+inner join pedido_itens pit
+on pit.produto_id = p.id
+group by nome_produto, quantidade_produto, p.preco
+order by pit.quantidade desc,p.preco DESC, p.nome
+)
+
+select * from VW_PRODUTOS_MAIS_VENDIDOS;
