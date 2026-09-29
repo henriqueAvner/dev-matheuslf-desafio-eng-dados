@@ -106,3 +106,21 @@ begin
 end;
 
 $$ language plpgsql;
+
+--funcao de produtos mais vendidos
+
+select * from fn_produtos_mais_vendidos();
+
+create or replace function fn_produtos_mais_vendidos()
+returns table(produto varchar, total_vendido bigint) as $$
+begin
+	return query
+	select pr.nome,
+		   sum(i.quantidade) as quantidade
+	from produtos pr
+	inner join pedido_itens i on i.produto_id = pr.id
+	group by 1
+	order by sum(i.quantidade) desc;
+end;
+
+$$ language plpgsql;
